@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+@import url('https://googleapis.com');
+
+/* @import "./base.css";
+@import "./typography.css";
+@import "./utilities.css";
+@import "./animations.css";
+ */
+
+html,
+body {
+    overscroll-behavior: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
