@@ -23,106 +23,77 @@
       class="mb-8"
     />
 
-<!-- Loading -->
-<div
-  v-if="status === 'pending'"
-  class="py-20 text-center text-gray-500"
->
-  Loading articles...
-</div>
+    <!-- Loading -->
+    <div
+      v-if="status === 'pending'"
+      class="py-20 text-center text-gray-500"
+    >
+      Loading articles...
+    </div>
 
-<!-- Error -->
-<ErrorServerError
-  v-else-if="error"
-  :error="error"
-/>
+    <!-- Error -->
+    <ErrorServerError
+      v-else-if="error"
+      :error="error"
+    />
 
-<!-- Empty -->
-<ErrorEmptyState
-  v-else-if="filteredPosts.length === 0"
-  title="No articles found"
-  description="Try another keyword or come back later."
-/>
+    <!-- Empty -->
+    <ErrorEmptyState
+      v-else-if="filteredPosts.length === 0"
+      title="No articles found"
+      description="Try another keyword or come back later."
+    />
 
-<!-- Content -->
-<div
-  v-else
-  class="flex flex-col gap-10 lg:flex-row"
->
+    <!-- Content -->
+    <div
+      v-else
+      class="flex flex-col gap-10 lg:flex-row"
+    >
       <!-- Feed -->
       <section class="min-w-0 flex-1">
-
         <ArticleListItem
           v-for="post in filteredPosts"
           :key="post.id"
           :post="post"
         />
-
       </section>
 
       <!-- Sidebar -->
-      <aside
-        class="w-full lg:w-80 lg:shrink-0"
-      >
-
+      <aside class="w-full lg:w-80 lg:shrink-0">
         <!-- Mobile -->
         <div class="lg:hidden">
           <HomeTrendingSidebar />
         </div>
 
         <!-- Desktop -->
-        <div
-          class="hidden lg:block"
-        >
-          <div
-            class="fixed top-6 w-80"
-          >
+        <div class="hidden lg:block">
+          <div class="fixed top-6 w-80">
             <HomeTrendingSidebar />
           </div>
         </div>
-
       </aside>
-
     </div>
 
   </main>
 </template>
 
 <script setup lang="ts">
-interface Post {
-  id: number
-  userId: number
-  title: string
-  body: string
-}
-
 const searchQuery = ref('')
 const activeCategory = ref('For You')
 
-const {
-  data: posts,
-  status,
-  error
-} = await useFetch<Post[]>(
-  'https://jsonplaceholder.typicode.com/posts',
-  {
-    key: 'posts',
-    transform: data => data.slice(0, 20),
-    default: () => []
-  }
-)
+const { data: posts, status, error } = await useFetchPosts()
 
 const filteredPosts = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
   if (!query) {
-    return posts.value
+    return posts.value ?? []
   }
 
-  return posts.value.filter(post =>
-    post.title.toLowerCase().includes(query) ||
-    post.body.toLowerCase().includes(query)
-  )
+return (posts.value ?? []).filter((post: any) =>
+  post.title.toLowerCase().includes(query) ||
+  post.body.toLowerCase().includes(query)
+)
 })
 
 useSeoMeta({

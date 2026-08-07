@@ -191,20 +191,8 @@ interface Post {
   title: string
   body: string
 }
-
 const route = useRoute()
-
-const {
-  data: post,
-  status,
-  error
-} = await useFetch<Post>(
-  `https://jsonplaceholder.typicode.com/posts/${route.params.id}`,
-  {
-    key: `post-${route.params.id}`
-  }
-  
-)
+const { data: post, status, error } = await useFetchPost(route.params.id as string)
 if(!post.value){
 
 throw createError({

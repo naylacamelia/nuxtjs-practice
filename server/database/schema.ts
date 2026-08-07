@@ -87,3 +87,8 @@ export const postTagsRelations = relations(postTags, ({ one }) => ({
   post: one(posts, { fields: [postTags.postId], references: [posts.id] }),
   tag: one(tags, { fields: [postTags.tagId], references: [tags.id] })
 }))
+
+export const likesRelations = relations(likes, ({ one }) => ({
+  post: one(posts, { fields: [likes.postId], references: [posts.id] }),
+  user: one(users, { fields: [likes.userId], references: [users.id] })
+}))
