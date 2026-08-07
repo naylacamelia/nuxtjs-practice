@@ -6,7 +6,11 @@
         Trending Articles
       </h2>
 
-      <div class="space-y-6">
+      <div v-if="status === 'pending'" class="text-sm text-gray-400">
+        Loading...
+      </div>
+
+      <div v-else class="space-y-6">
         <NuxtLink
           v-for="(article, index) in trendingArticles"
           :key="article.id"
@@ -54,35 +58,26 @@
 </template>
 
 <script setup lang="ts">
-const trendingArticles = [
-  {
-    id: 1,
-    title: 'Why Nuxt is becoming the best Vue Framework',
-    author: 'John Doe'
-  },
-  {
-    id: 2,
-    title: 'Understanding Vue Reactivity',
-    author: 'Sarah'
-  },
-  {
-    id: 3,
-    title: 'Mastering TypeScript in Vue',
-    author: 'Alex'
-  },
-  {
-    id: 4,
-    title: 'Building Better UI with Nuxt UI',
-    author: 'Daniel'
-  }
-]
+const { data: posts, status } = await useFetchPosts()
 
-const topics = [
-  'Vue',
-  'Nuxt',
-  'TypeScript',
-  'JavaScript',
-  'Tailwind',
-  'AI'
-]
+const trendingArticles = computed(() => {
+  return [...(posts.value ?? [])]
+    .sort((a, b) => b.likes.length - a.likes.length)
+    .slice(0, 4)
+    .map(post => ({
+      id: post.id,
+      title: post.title,
+      author: post.author.name
+    }))
+})
+
+const topics = computed(() => {
+  const tagNames = new Set<string>()
+  posts.value?.forEach((post) => {
+    post.postTags?.forEach((pt) => {
+      tagNames.add(pt.tag.name)
+    })
+  })
+  return Array.from(tagNames)
+})
 </script>
