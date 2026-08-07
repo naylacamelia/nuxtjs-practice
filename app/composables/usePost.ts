@@ -1,15 +1,3 @@
-export function useFetchPosts() {
-  return useFetch('/api/posts', {
-    transform: (res: any) => res.data
-  })
-}
-
-export function useFetchPost(id: string) {
-  return useFetch(`/api/posts/${id}`, {
-    transform: (res: any) => res.data
-  })
-}
-
 export interface Post {
   id: number
   title: string
@@ -26,5 +14,33 @@ export interface Post {
     name: string
   } | null
   likes: { userId: number }[]
-  comments: { id: number; body: string }[]
+  comments: {
+    id: number
+    body: string
+    author: { id: number, name: string, avatarUrl: string | null }
+  }[]
+  postTags: {
+    tag: { id: number, name: string }
+  }[]
+}
+
+interface ApiResponse<T> {
+  success: boolean
+  data: T
+}
+
+export function useFetchPosts() {
+  return useAsyncData('posts', () =>
+    $fetch<ApiResponse<Post[]>>('/api/posts')
+  , {
+    transform: res => res?.data ?? []
+  })
+}
+
+export function useFetchPost(id: string) {
+  return useAsyncData(`post-${id}`, () =>
+    $fetch<ApiResponse<Post>>(`/api/posts/${id}`)
+  , {
+    transform: res => res?.data ?? null
+  })
 }

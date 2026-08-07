@@ -17,7 +17,8 @@ export default defineEventHandler(async (event) => {
       category: true,
       comments: {
         with: { author: true }
-      }
+      },
+      postTags: { with: { tag: true } }
     }
   })
 
@@ -28,5 +29,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return post
+  return successResponse(post)   // ← ini yang kurang
 })

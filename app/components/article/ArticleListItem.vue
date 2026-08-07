@@ -36,12 +36,7 @@ class="group flex flex-col gap-5 border-b border-gray-200 py-8 md:flex-row"
 <div
   class="mt-5 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400"
 >
-  <UBadge
-    color="neutral"
-    variant="soft"
-  >
-    Development
-  </UBadge>
+<UBadge>{{ post.category?.name }}</UBadge>
 
   <div
     class="flex items-center gap-1 transition-colors"
@@ -50,7 +45,7 @@ class="group flex flex-col gap-5 border-b border-gray-200 py-8 md:flex-row"
       name="i-lucide-star"
       class="size-4"
     />
-    <span>234</span>
+    <span>{{ post.likes?.length ?? 0 }}</span>
   </div>
 
   <div
@@ -60,7 +55,7 @@ class="group flex flex-col gap-5 border-b border-gray-200 py-8 md:flex-row"
       name="i-lucide-message-circle"
       class="size-4"
     />
-    <span>18</span>
+    <span>{{ post.comments?.length ?? 0 }}</span>
   </div>
 </div>
 
