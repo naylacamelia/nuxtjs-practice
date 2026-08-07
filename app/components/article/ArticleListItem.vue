@@ -8,12 +8,12 @@ class="group flex flex-col gap-5 border-b border-gray-200 py-8 md:flex-row"
       <div class="mb-3 flex items-center gap-2 text-sm text-gray-500">
 
 <UAvatar
-  :src="`https://i.pravatar.cc/100?img=${post.userId}`"
-  :alt="`User ${post.userId}`"
+  :src="`https://i.pravatar.cc/100?img=${post.author.name}`"
+  :alt="`User ${post.author.name}`"
   size="xs"
 />
 
-        <span>User {{ post.userId }}</span>
+        <span>User {{ post.author.name }}</span>
 
         <span>·</span>
 
@@ -78,13 +78,25 @@ class="group flex flex-col gap-5 border-b border-gray-200 py-8 md:flex-row"
 </template>
 
 <script setup lang="ts">
-interface Post {
-    id: number
-  userId: number
-  title: string
-  body: string
+import type { Post } from '~/composables/usePost'
+
+const props = defineProps<{ post: Post }>()
+
+const { toggle, pending } = useToggleLike(props.post.id)
+
+const isLiked = ref(props.post.likes.some(l => l.userId === 1)) // 1 = CURRENT_USER_ID sementara
+const likeCount = ref(props.post.likes.length)
+
+async function handleLike() {
+  if (pending.value) return
+
+  // Optimistic update — UI berubah duluan, gak nunggu server
+  isLiked.value = !isLiked.value
+  likeCount.value += isLiked.value ? 1 : -1
+
+  const liked = await toggle()
+
+  // Sinkronkan ke hasil asli dari server, jaga-jaga kalau beda
+  isLiked.value = liked
 }
-defineProps<{
-  post: Post
-}>()
 </script>

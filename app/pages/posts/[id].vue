@@ -164,7 +164,42 @@
           Tailwind
         </UBadge>
       </div>
+<section class="mt-12 border-t border-gray-100 pt-8">
+  <h2 class="text-lg font-semibold mb-4">
+    Komentar ({{ post.comments.length }})
+  </h2>
 
+  <!-- Form komentar baru -->
+  <div class="flex gap-3 mb-8">
+    <UTextarea
+      v-model="commentText"
+      placeholder="Tulis komentar..."
+      class="flex-1"
+      :rows="2"
+    />
+    <UButton
+      :loading="submittingComment"
+      :disabled="!commentText.trim()"
+      @click="handleSubmitComment"
+    >
+      Kirim
+    </UButton>
+  </div>
+
+  <!-- Daftar komentar -->
+  <div class="space-y-6">
+    <div v-for="comment in post.comments" :key="comment.id" class="flex gap-3">
+      <img
+        :src="comment.author.avatarUrl ?? undefined"
+        class="size-8 rounded-full"
+      />
+      <div>
+        <p class="text-sm font-medium">{{ comment.author.name }}</p>
+        <p class="text-sm text-gray-600">{{ comment.body }}</p>
+      </div>
+    </div>
+  </div>
+</section>
       <!-- Footer -->
       <div
         class="mt-16 border-t border-gray-200 pt-8 dark:border-gray-800"
@@ -185,30 +220,18 @@
 </template>
 
 <script setup lang="ts">
-interface Post {
-  id: number
-  userId: number
-  title: string
-  body: string
-}
 const route = useRoute()
-const { data: post, status, error } = await useFetchPost(route.params.id as string)
-if(!post.value){
+const postId = Number(route.params.id)
+const { data: post, refresh, error, status } = await useFetchPost(route.params.id as string)
 
-throw createError({
+const { submit, pending: submittingComment } = useAddComment(postId)
+const commentText = ref('')
 
-statusCode:404,
+async function handleSubmitComment() {
+  if (!commentText.value.trim()) return
 
-statusMessage:"Article not found."
-
-})
-
+  await submit(commentText.value)
+  commentText.value = ''
+  await refresh() // ambil ulang data post, biar komentar baru langsung muncul
 }
-
-useSeoMeta({
-  title: () => post.value?.title ?? 'Article',
-  description: () => post.value?.body ?? '',
-  ogTitle: () => post.value?.title ?? '',
-  ogDescription: () => post.value?.body ?? ''
-})
 </script>
