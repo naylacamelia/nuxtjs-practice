@@ -1,24 +1,21 @@
 import { posts } from '~~/server/database/schema'
+import { createPostSchema } from '~~/server/utils/validation'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
+  const parsed = createPostSchema.safeParse(body)
 
-  if (!body.title || !body.body || !body.userId) {
+  if (!parsed.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'title, body, dan userId wajib diisi'
+      statusMessage: 'Validasi gagal',
+      data: parsed.error.flatten().fieldErrors
     })
   }
 
   const db = useDrizzle(event)
 
-  const [newPost] = await db.insert(posts).values({
-    title: body.title,
-    body: body.body,
-    userId: body.userId,
-    categoryId: body.categoryId ?? null,
-    imageUrl: body.imageUrl ?? null
-  }).returning()
+  const [newPost] = await db.insert(posts).values(parsed.data).returning()
 
-  return newPost
+  return { success: true, data: newPost }
 })
