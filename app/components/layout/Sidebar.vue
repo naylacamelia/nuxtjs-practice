@@ -1,5 +1,4 @@
 <template>
-  <!-- Overlay gelap saat drawer mobile terbuka -->
   <div
     v-if="mobileOpen"
     class="fixed inset-0 z-40 bg-black/40 lg:hidden"
@@ -21,7 +20,6 @@
         </span>
       </NuxtLink>
 
-      <!-- Tombol collapse: cuma di desktop -->
       <UButton
         :icon="collapsed ? 'i-lucide-panel-left-open' : 'i-lucide-panel-left-close'"
         variant="ghost"
@@ -31,7 +29,6 @@
         @click="collapsed = !collapsed"
       />
 
-      <!-- Tombol tutup: cuma di mobile -->
       <UButton
         icon="i-lucide-x"
         variant="ghost"

@@ -1,7 +1,6 @@
 <template>
   <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-
-    <!-- Search -->
+    <!-- Search Bar -->
     <section class="mb-8">
       <div class="w-full max-w-xl">
         <UInput
@@ -17,40 +16,49 @@
       </div>
     </section>
 
-    <!-- Tabs -->
+    <!-- Navigation Tabs -->
     <HomeHomeTabs
       v-model="activeCategory"
       class="mb-8"
     />
 
-    <!-- Loading -->
+    <!-- Coming Soon Tab -->
+    <UiSoonDialog
+      v-if="activeCategory === 'Explore' || activeCategory === 'Coming Soon Tab'"
+      mode="page"
+      title="Kategori Segera Hadir"
+      description="Konten untuk kategori ini masih disiapkan oleh tim penulis kami."
+      icon="i-lucide-layers"
+    />
+
+    <!--Loading -->
     <div
-      v-if="status === 'pending'"
-      class="py-20 text-center text-gray-500"
+      v-else-if="status === 'pending'"
+      class="py-20 text-center text-sm text-gray-500 dark:text-gray-400"
     >
       Loading articles...
     </div>
 
-    <!-- Error -->
+    <!--Server Error -->
     <ErrorServerError
       v-else-if="error"
       :error="error"
     />
 
-    <!-- Empty -->
+    <!-- Empty Search / No Data -->
     <ErrorEmptyState
       v-else-if="filteredPosts.length === 0"
       title="No articles found"
       description="Try another keyword or come back later."
     />
 
-    <!-- Content -->
+    <!-- in Content (Feed + Sidebar) -->
     <div
       v-else
       class="flex flex-col gap-10 lg:flex-row"
     >
-      <!-- Feed -->
-      <section class="min-w-0 flex-1">
+      <!-- Feed Articles -->
+      <section class="min-w-0 flex-1 space-y-6">
         <ArticleListItem
           v-for="post in filteredPosts"
           :key="post.id"
@@ -58,22 +66,21 @@
         />
       </section>
 
-      <!-- Sidebar -->
+      <!-- Right Sidebar -->
       <aside class="w-full lg:w-80 lg:shrink-0">
-        <!-- Mobile -->
+        <!-- Mobile Sidebar -->
         <div class="lg:hidden">
           <HomeTrendingSidebar />
         </div>
 
-        <!-- Desktop -->
+        <!-- Desktop Sidebar -->
         <div class="hidden lg:block">
-          <div class="fixed top-6 w-80">
+          <div class="sticky top-6 w-80">
             <HomeTrendingSidebar />
           </div>
         </div>
       </aside>
     </div>
-
   </main>
 </template>
 
@@ -90,10 +97,10 @@ const filteredPosts = computed(() => {
     return posts.value ?? []
   }
 
-return (posts.value ?? []).filter((post: any) =>
-  post.title.toLowerCase().includes(query) ||
-  post.body.toLowerCase().includes(query)
-)
+  return (posts.value ?? []).filter((post: any) =>
+    post.title?.toLowerCase().includes(query) ||
+    post.body?.toLowerCase().includes(query)
+  )
 })
 
 useSeoMeta({

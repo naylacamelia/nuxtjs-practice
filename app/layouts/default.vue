@@ -7,7 +7,6 @@ const mobileOpen = useState('sidebarMobile', () => false)
     <LayoutSidebar />
 
     <div class="flex min-w-0 flex-1 flex-col">
-      <!-- Topbar: cuma muncul di mobile -->
       <header class="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800 lg:hidden">
         <UButton
           icon="i-lucide-menu"

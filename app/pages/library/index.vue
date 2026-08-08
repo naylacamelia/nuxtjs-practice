@@ -12,9 +12,12 @@
         </p>
       </div>
 
-      <UButton icon="i-lucide-plus" size="lg">
+      <UButton icon="i-lucide-plus" size="lg" @click="showComingSoon = true">
         New Board
       </UButton>
+
+      <UiSoonDialog v-model:open="showComingSoon" title="Coming Soon"
+        description="Custom board collections are currently under development." icon="i-lucide-folder-plus" />
     </div>
 
     <!-- Tabs -->
@@ -32,25 +35,18 @@
 
     <!-- ALL -->
     <section v-else-if="activeTab === 'All'">
-      <ArticleListItem
-        v-for="post in savedPosts"
-        :key="post.id"
-        :post="post"
-      />
+      <ArticleListItem v-for="post in savedPosts" :key="post.id" :post="post" />
     </section>
 
     <!-- BOARDS -->
     <section v-else class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-      <LibraryBoardCard
-        v-for="board in boards"
-        :key="board.slug"
-        :board="board"
-      />
+      <LibraryBoardCard v-for="board in boards" :key="board.slug" :board="board" />
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
+const showComingSoon = ref(false)
 const activeTab = ref('All')
 
 const { data: savedPosts, status, error } = await useFetchPosts()
