@@ -294,7 +294,7 @@ async function confirmDeleteComment() {
   try {
     await $fetch<{ success: boolean; message: string }>(`/api/posts/${postId}/comments`, {
       method: 'DELETE',
-      body: {
+      query: {
         commentId: commentToDelete.value,
         userId: CURRENT_USER_ID
       }

@@ -1,17 +1,18 @@
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { comments } from '~~/server/database/schema'
 import { z } from 'zod'
 
 const deleteCommentSchema = z.object({
-  commentId: z.number().int().positive('commentId is required'),
-  userId: z.number().int().positive('userId is required')
+  commentId: z.coerce.number().int().positive('commentId is required'),
+  userId: z.coerce.number().int().positive('userId is required')
 })
 
 export default defineEventHandler(async (event) => {
   assertMethod(event, ['DELETE'])
 
-  const body = await readBody(event).catch(() => ({}))
-  const parsed = deleteCommentSchema.safeParse(body)
+  // Gunakan getQuery untuk membaca parameter dari URL pada request DELETE
+  const query = getQuery(event)
+  const parsed = deleteCommentSchema.safeParse(query)
 
   if (!parsed.success) {
     throw createError({
