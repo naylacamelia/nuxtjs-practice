@@ -41,13 +41,6 @@ Back Home
           <UIcon :name="icon" class="size-6 text-gray-700 dark:text-gray-300" />
         </div>
 
-        <UBadge
-          color="neutral"
-          variant="soft"
-          class="mb-2 rounded-full px-2.5 py-0.5 text-xs font-medium"
-        >
-          Coming Soon
-        </UBadge>
 
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">
           {{ title }}
