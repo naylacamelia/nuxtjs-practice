@@ -7,7 +7,7 @@
     <template #footer>
       <div class="flex w-full justify-end gap-3">
         <UButton variant="ghost" color="neutral" @click="handleCancel">
-          Batal
+          Cancel
         </UButton>
 
         <UButton color="error" :loading="loading" @click="handleConfirm">
@@ -26,9 +26,9 @@ const props = withDefaults(defineProps<{
   confirmLabel?: string
   loading?: boolean
 }>(), {
-  title: 'Apakah kamu yakin?',
-  description: 'Tindakan ini tidak bisa dibatalkan.',
-  confirmLabel: 'Hapus',
+  title: 'Are you sure?',
+  description: 'This action cannot be undone.',
+  confirmLabel: 'Delete',
   loading: false
 })
 
