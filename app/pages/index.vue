@@ -31,15 +31,15 @@
       icon="i-lucide-layers"
     />
 
-    <!--Loading -->
+    <!-- Loading (hanya tampil jika pending DAN data posts belum ada) -->
     <div
-      v-else-if="status === 'pending'"
+      v-else-if="status === 'pending' && !posts"
       class="py-20 text-center text-sm text-gray-500 dark:text-gray-400"
     >
       Loading articles...
     </div>
 
-    <!--Server Error -->
+    <!-- Server Error -->
     <ErrorServerError
       v-else-if="error"
       :error="error"
@@ -52,7 +52,7 @@
       description="Try another keyword or come back later."
     />
 
-    <!-- in Content (Feed + Sidebar) -->
+    <!-- Main Content (Feed + Sidebar) -->
     <div
       v-else
       class="flex flex-col gap-10 lg:flex-row"
@@ -88,7 +88,8 @@
 const searchQuery = ref('')
 const activeCategory = ref('For You')
 
-const { data: posts, status, error } = await useFetchPosts()
+// Tanpa await agar fitur lazy dari composable berjalan sempurna
+const { data: posts, status, error } = useFetchPosts()
 
 const filteredPosts = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()

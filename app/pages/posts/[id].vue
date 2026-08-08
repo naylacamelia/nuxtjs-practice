@@ -43,7 +43,7 @@
               {{ post.author?.name ?? 'User' }}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">
-              Diterbitkan hari ini
+              Published today
             </p>
           </div>
         </div>
@@ -83,7 +83,7 @@
       <!-- Section Komentar -->
       <section id="comments" class="mt-16 border-t border-gray-100 pt-10 dark:border-gray-800">
         <h2 class="mb-6 text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-          Komentar ({{ post.comments?.length ?? 0 }})
+          Comments ({{ post.comments?.length ?? 0 }})
         </h2>
 
         <!-- Input Komentar Baru -->
@@ -91,7 +91,7 @@
           <UAvatar src="https://i.pravatar.cc/100?img=2" alt="Current User" size="sm"
             class="ring-1 ring-gray-200 dark:ring-gray-800" />
           <div class="flex-1 space-y-3">
-            <UTextarea v-model="commentText" placeholder="Tulis tanggapan kamu..." :rows="3"
+            <UTextarea v-model="commentText" placeholder="Write a comment..." :rows="3"
               class="w-full rounded-xl" />
             <div class="flex justify-end">
               <UButton :loading="submittingComment" :disabled="!commentText.trim()"
@@ -155,19 +155,10 @@
           </div>
         </div>
       </section>
-
-      <!-- Bottom Nav / Back Link -->
-      <div class="mt-16 border-t border-gray-100 pt-8 dark:border-gray-800">
-        <NuxtLink to="/"
-          class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-amber-500 dark:text-gray-400 dark:hover:text-amber-400">
-          <UIcon name="i-lucide-arrow-left" class="size-4" />
-          Kembali ke daftar artikel
-        </NuxtLink>
-      </div>
     </template>
 
-    <UiConfirmDialog v-model="showDeleteConfirm" title="Hapus komentar?"
-      description="Komentar yang dihapus tidak bisa dikembalikan." :loading="deletePending"
+    <UiConfirmDialog v-model="showDeleteConfirm" title="Delete Comment?""
+      description="The comment you are about to delete cannot be recovered." :loading="deletePending"
       @confirm="confirmDeleteComment" />
   </article>
 </template>
@@ -217,7 +208,7 @@ async function handleSaveEdit(commentId: number) {
   const result = await edit(commentId, editText.value)
 
   if (!result) {
-    editErrorMessage.value = 'Gagal menyimpan perubahan. Pastikan ini komentar milikmu sendiri.'
+    editErrorMessage.value = 'Failed to update comment. Make sure this comment belongs to you.'
     return
   }
 
