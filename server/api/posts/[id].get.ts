@@ -30,5 +30,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return successResponse(post)   // ← ini yang kurang
+  return successResponse(post)   
 })

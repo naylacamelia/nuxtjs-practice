@@ -3,7 +3,6 @@
     <div class="order-2 min-w-0 flex-1 md:order-1">
 
       <div class="mb-3 flex items-center gap-2 text-sm text-gray-500">
-        <!-- 1. Perbaikan Avatar: Pakai avatarUrl dari schema DB -->
         <UAvatar
           :src="post.author?.avatarUrl ?? `https://i.pravatar.cc/100?img=${post.author?.id ?? 1}`"
           :alt="post.author?.name ?? 'User'"
@@ -27,9 +26,7 @@
 
       <div class="mt-5 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
         <UBadge v-if="post.category?.name">{{ post.category.name }}</UBadge>
-
-        <!-- 2. Perbaikan Like: Pasang @click.stop.prevent agar tidak pindah halaman saat diklik -->
-        <div
+ <div
           class="flex items-center gap-1 cursor-pointer transition-colors hover:text-yellow-500"
           @click.stop.prevent="handleLike"
         >
@@ -39,7 +36,6 @@
             :class="isLiked && 'fill-current text-yellow-400'"
             @click.stop.prevent="handleLike"
           />
-          <!-- 3. Tampilkan variabel likeCount yang reaktif -->
           <span>{{ likeCount }}</span>
         </div>
 
@@ -71,11 +67,9 @@ const { toggle, pending } = useToggleLike(props.post.id)
 
 const CURRENT_USER_ID = 2
 
-// 4. Perbaikan Safe Check Optional Chaining (?.) pada Props
 const isLiked = ref(props.post.likes?.some(l => l.userId === CURRENT_USER_ID) ?? false)
 const likeCount = ref(props.post.likes?.length ?? 0)
 
-// Sinkronkan state lokal jika props post diperbarui dari parent
 watch(() => props.post, (newPost) => {
   if (newPost) {
     isLiked.value = newPost.likes?.some(l => l.userId === CURRENT_USER_ID) ?? false

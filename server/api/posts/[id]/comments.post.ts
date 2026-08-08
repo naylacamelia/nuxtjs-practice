@@ -25,9 +25,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const db = useDrizzle(event)
-
-  // 1. Pastikan Post dengan postId tersebut ada
-  const targetPost = await db.query.posts.findFirst({
+ const targetPost = await db.query.posts.findFirst({
     where: eq(posts.id, postId)
   })
 
@@ -37,9 +35,7 @@ export default defineEventHandler(async (event) => {
       statusMessage: `Post dengan ID ${postId} tidak ditemukan.`
     })
   }
-
-  // 2. Ambil userId dari request body, jika user-nya tidak ada di DB, ambil user pertama yang ada (fallback)
-  let validUserId = parsed.data.userId
+let validUserId = parsed.data.userId
   const targetUser = await db.query.users.findFirst({
     where: eq(users.id, validUserId)
   })
@@ -56,7 +52,6 @@ export default defineEventHandler(async (event) => {
     validUserId = firstAvailableUser.id
   }
 
-  // 3. Insert Komentar Baru (biarkan createdAt diisi otomatis oleh SQLite)
   const [newComment] = await db.insert(comments).values({
     postId,
     userId: validUserId,
