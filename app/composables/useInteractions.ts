@@ -1,7 +1,23 @@
-// Sementara — nanti diganti dari session/auth beneran
-// Sementara — nanti diganti dari session/auth beneran
-// app/composables/useInteractions.ts
+
 export const CURRENT_USER_ID = 2
+
+interface ApiResponse<T> {
+  success: boolean
+  data: T
+}
+
+export interface Comment {
+  id: number
+  body: string
+  postId?: number
+  userId?: number
+  user_id?: number
+  author?: {
+    id: number
+    name: string
+    avatarUrl: string | null
+  }
+}
 
 export function useToggleLike(postId: number) {
   const pending = ref(false)
@@ -11,11 +27,11 @@ export function useToggleLike(postId: number) {
 
     pending.value = true
     try {
-      const res = await $fetch(`/api/posts/${postId}/likes`, {
+      const res = await $fetch<ApiResponse<{ liked: boolean }>>(`/api/posts/${postId}/likes`, {
         method: 'POST',
         body: { userId: CURRENT_USER_ID }
       })
-      return res.data.liked as boolean
+      return res.data.liked
     } catch (err) {
       console.error('Gagal toggle like:', err)
       return null
@@ -26,17 +42,21 @@ export function useToggleLike(postId: number) {
 
   return { toggle, pending }
 }
+
 export function useAddComment(postId: number) {
   const pending = ref(false)
 
   async function submit(body: string) {
     pending.value = true
     try {
-      const res = await $fetch(`/api/posts/${postId}/comments`, {
+      const res = await $fetch<ApiResponse<Comment>>(`/api/posts/${postId}/comments`, {
         method: 'POST',
         body: { userId: CURRENT_USER_ID, body }
       })
       return res.data
+    } catch (err) {
+      console.error('Gagal menambah komentar:', err)
+      return null
     } finally {
       pending.value = false
     }
@@ -45,3 +65,52 @@ export function useAddComment(postId: number) {
   return { submit, pending }
 }
 
+export function useEditComment(postId?: number) {
+  const pending = ref(false)
+
+  async function edit(commentId: number, body: string) {
+    pending.value = true
+    try {
+      const res = await $fetch<ApiResponse<Comment>>(`/api/posts/${postId ?? 0}/comments`, {
+        method: 'PUT',
+        body: { 
+          commentId, 
+          userId: CURRENT_USER_ID, 
+          body 
+        }
+      })
+      return res.data
+    } catch (err) {
+      console.error('Gagal edit komentar:', err)
+      return null
+    } finally {
+      pending.value = false
+    }
+  }
+
+  return { edit, pending }
+}
+export function useDeleteComment(postId?: number) {
+  const pending = ref(false)
+
+  async function remove(commentId: number) {
+    pending.value = true
+    try {
+      await $fetch<ApiResponse<{ message: string, id: number }>>(`/api/posts/${postId ?? 0}/comments`, {
+        method: 'DELETE',
+        body: { 
+          commentId, 
+          userId: CURRENT_USER_ID 
+        }
+      })
+      return true
+    } catch (err) {
+      console.error('Gagal hapus komentar:', err)
+      return false
+    } finally {
+      pending.value = false
+    }
+  }
+
+  return { remove, pending }
+}

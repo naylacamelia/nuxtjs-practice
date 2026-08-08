@@ -8,7 +8,7 @@ const allPosts = await db.query.posts.findMany({
     category: true,
     likes: true,
     comments: true,
-    postTags: { with: { tag: true } }   // ← pastikan ada ini juga
+    postTags: { with: { tag: true } }   
   },
   orderBy: (posts, { desc }) => [desc(posts.createdAt)]
 })

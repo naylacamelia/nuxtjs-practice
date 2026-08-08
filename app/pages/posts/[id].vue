@@ -1,3 +1,4 @@
+
 <template>
   <article class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
     <!-- State Loading -->
@@ -55,10 +56,9 @@
         </div>
 
         <div class="hidden items-center gap-4 text-gray-500 md:flex">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 cursor-pointer select-none">
             <UIcon
               name="i-lucide-star"
-              class="cursor-pointer"
               :class="isLiked && 'fill-current text-yellow-400'"
               @click.stop.prevent="handleLike"
             />
@@ -125,13 +125,55 @@
               :alt="comment.author?.name ?? 'User'"
               size="xs"
             />
-            <div>
+
+            <div class="flex-1">
               <p class="text-sm font-medium">
                 {{ comment.author?.name ?? 'User' }}
               </p>
-              <p class="text-sm text-gray-600 dark:text-gray-300">
-                {{ comment.body }}
+
+              <!-- Mode edit -->
+              <div v-if="editingCommentId === comment.id" class="mt-1 flex gap-2">
+                <UTextarea v-model="editText" class="flex-1" :rows="2" />
+                <div class="flex flex-col gap-1">
+                  <UButton size="xs" :loading="editPending" @click="handleSaveEdit(comment.id)">
+                    Simpan
+                  </UButton>
+                  <UButton size="xs" variant="ghost" @click="cancelEdit">
+                    Batal
+                  </UButton>
+                </div>
+              </div>
+              <p
+                v-if="editErrorMessage && editingCommentId === comment.id"
+                class="mt-1 text-xs text-red-500"
+              >
+                {{ editErrorMessage }}
               </p>
+
+              <!-- Mode tampil biasa -->
+              <template v-else>
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                  {{ comment.body }}
+                </p>
+
+                <!-- Tombol edit/hapus -->
+            <!-- Tombol edit/hapus -->
+<div
+  v-if="comment.author.id === CURRENT_USER_ID"
+  class="mt-1 flex gap-3 text-xs text-gray-400"
+>
+  <button class="hover:text-gray-700" @click="startEdit(comment)">
+    Edit
+  </button>
+  <button
+    class="hover:text-red-500"
+    :disabled="deletePending"
+    @click="askDeleteComment(comment.id)"
+  >
+    Hapus
+  </button>
+</div>
+              </template>
             </div>
           </div>
         </div>
@@ -148,16 +190,28 @@
         </NuxtLink>
       </div>
     </template>
+
+    <UiConfirmDialog
+      v-model="showDeleteConfirm"
+      title="Hapus komentar?"
+      description="Komentar yang dihapus tidak bisa dikembalikan."
+      :loading="deletePending"
+      @confirm="confirmDeleteComment"
+    />
   </article>
 </template>
 
 <script setup lang="ts">
+
+const CURRENT_USER_ID = 2
+
 const route = useRoute()
 const paramId = route.params.id as string
 const postId = Number(paramId)
 
 const { data: post, refresh, error, status } = await useFetchPost(paramId)
 
+// --- Komentar: tambah ---
 const { submit, pending: submittingComment } = useAddComment(postId)
 const commentText = ref('')
 
@@ -169,10 +223,74 @@ async function handleSubmitComment() {
   await refresh()
 }
 
+// --- Komentar ---
+const { edit, pending: editPending } = useEditComment(postId)
+const editingCommentId = ref<number | null>(null)
+const editText = ref('')
+const editErrorMessage = ref('')
+
+function startEdit(comment: { id: number, body: string }) {
+  editErrorMessage.value = ''
+  editingCommentId.value = comment.id
+  editText.value = comment.body
+}
+
+function cancelEdit() {
+  editingCommentId.value = null
+  editText.value = ''
+  editErrorMessage.value = ''
+}
+
+async function handleSaveEdit(commentId: number) {
+  if (!editText.value.trim()) return
+
+  const result = await edit(commentId, editText.value)
+
+  if (!result) {
+    editErrorMessage.value = 'Gagal menyimpan perubahan. Pastikan ini komentar milikmu sendiri.'
+    return
+  }
+
+  editingCommentId.value = null
+  await refresh()
+}
+
+// --- Komentar: hapus (Sertakan postId) ---
+const { remove, pending: deletePending } = useDeleteComment(postId)
+const showDeleteConfirm = ref(false)
+const commentToDelete = ref<number | null>(null)
+
+function askDeleteComment(commentId: number) {
+  commentToDelete.value = commentId
+  showDeleteConfirm.value = true
+}
+
+async function confirmDeleteComment() {
+  if (!commentToDelete.value) return
+
+  const success = await remove(commentToDelete.value)
+
+  if (success) {
+    await refresh()
+  }
+
+  showDeleteConfirm.value = false
+  commentToDelete.value = null
+}
+
+// --- Like ---
 const { toggle, pending: likePending } = useToggleLike(postId)
 
-const isLiked = ref(post.value?.likes.some(l => l.userId === CURRENT_USER_ID) ?? false)
-const likeCount = ref(post.value?.likes.length ?? 0)
+const isLiked = ref(false)
+const likeCount = ref(0)
+
+watchEffect(() => {
+  if (post.value) {
+    const userLikes = post.value.likes ?? []
+    isLiked.value = userLikes.some((l: any) => Number(l.userId) === CURRENT_USER_ID)
+    likeCount.value = userLikes.length
+  }
+})
 
 async function handleLike() {
   if (likePending.value) return
@@ -187,5 +305,6 @@ async function handleLike() {
     return
   }
   isLiked.value = result
+  await refresh()
 }
 </script>

@@ -41,7 +41,6 @@ let validUserId = parsed.data.userId
   })
 
   if (!targetUser) {
-    // Cari user pertama yang tersedia di DB (misal ID 2) agar tidak kena Foreign Key constraint error
     const firstAvailableUser = await db.query.users.findFirst()
     if (!firstAvailableUser) {
       throw createError({
