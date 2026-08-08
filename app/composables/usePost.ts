@@ -17,10 +17,10 @@ export interface Post {
   comments: {
     id: number
     body: string
-    author: { id: number, name: string, avatarUrl: string | null }
+    author: { id: number; name: string; avatarUrl: string | null }
   }[]
   postTags: {
-    tag: { id: number, name: string }
+    tag: { id: number; name: string }
   }[]
 }
 
@@ -30,17 +30,17 @@ interface ApiResponse<T> {
 }
 
 export function useFetchPosts() {
-  return useAsyncData('posts', () =>
-    $fetch<ApiResponse<Post[]>>('/api/posts')
-  , {
-    transform: res => res?.data ?? []
+  return useFetch('/api/posts', {
+    server: false,
+    lazy: true,
+    transform: (res: ApiResponse<Post[]> | null): Post[] => res?.data ?? []
   })
 }
 
 export function useFetchPost(id: string) {
-  return useAsyncData(`post-${id}`, () =>
-    $fetch<ApiResponse<Post>>(`/api/posts/${id}`)
-  , {
-    transform: res => res?.data ?? null
+  return useFetch(`/api/posts/${id}`, {
+    server: false,
+    lazy: true,
+    transform: (res: ApiResponse<Post> | null): Post | null => res?.data ?? null
   })
 }
