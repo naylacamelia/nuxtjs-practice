@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
     with: {
       author: true,
       category: true,
+      likes: true,
       comments: {
         with: { author: true }
       },

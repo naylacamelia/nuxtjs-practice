@@ -1,10 +1,14 @@
 // Sementara — nanti diganti dari session/auth beneran
-const CURRENT_USER_ID = 1
+// Sementara — nanti diganti dari session/auth beneran
+// app/composables/useInteractions.ts
+export const CURRENT_USER_ID = 2
 
 export function useToggleLike(postId: number) {
   const pending = ref(false)
 
   async function toggle() {
+    if (pending.value) return null
+
     pending.value = true
     try {
       const res = await $fetch(`/api/posts/${postId}/likes`, {
@@ -12,6 +16,9 @@ export function useToggleLike(postId: number) {
         body: { userId: CURRENT_USER_ID }
       })
       return res.data.liked as boolean
+    } catch (err) {
+      console.error('Gagal toggle like:', err)
+      return null
     } finally {
       pending.value = false
     }
@@ -19,7 +26,6 @@ export function useToggleLike(postId: number) {
 
   return { toggle, pending }
 }
-
 export function useAddComment(postId: number) {
   const pending = ref(false)
 
@@ -38,3 +44,4 @@ export function useAddComment(postId: number) {
 
   return { submit, pending }
 }
+

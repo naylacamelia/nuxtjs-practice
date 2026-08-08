@@ -37,10 +37,10 @@
       <!-- Author & Stats -->
       <div class="mt-8 flex items-center justify-between border-y border-gray-200 py-6 dark:border-gray-800">
         <div class="flex items-center gap-4">
-          <UAvatar 
-            :src="post.author?.avatarUrl ?? undefined" 
-            :alt="post.author?.name ?? 'Author'" 
-            size="lg" 
+          <UAvatar
+            :src="post.author?.avatarUrl ?? undefined"
+            :alt="post.author?.name ?? 'Author'"
+            size="lg"
           />
 
           <div>
@@ -56,8 +56,13 @@
 
         <div class="hidden items-center gap-4 text-gray-500 md:flex">
           <div class="flex items-center gap-1">
-            <UIcon name="i-lucide-heart" />
-            <span>{{ post.likes?.length ?? 0 }}</span>
+            <UIcon
+              name="i-lucide-star"
+              class="cursor-pointer"
+              :class="isLiked && 'fill-current text-yellow-400'"
+              @click.stop.prevent="handleLike"
+            />
+            <span>{{ likeCount }}</span>
           </div>
 
           <div class="flex items-center gap-1">
@@ -110,16 +115,16 @@
 
         <!-- Daftar Komentar -->
         <div class="space-y-6">
-          <div 
-            v-for="comment in post.comments" 
-            :key="comment.id" 
+          <div
+            v-for="comment in post.comments"
+            :key="comment.id"
             class="flex gap-3"
           >
             <UAvatar
               :src="comment.author?.avatarUrl ?? undefined"
               :alt="comment.author?.name ?? 'User'"
               size="xs"
-            />  
+            />
             <div>
               <p class="text-sm font-medium">
                 {{ comment.author?.name ?? 'User' }}
@@ -151,10 +156,8 @@ const route = useRoute()
 const paramId = route.params.id as string
 const postId = Number(paramId)
 
-// Fetch Data Artikel
 const { data: post, refresh, error, status } = await useFetchPost(paramId)
 
-// Handler Komentar
 const { submit, pending: submittingComment } = useAddComment(postId)
 const commentText = ref('')
 
@@ -164,5 +167,25 @@ async function handleSubmitComment() {
   await submit(commentText.value)
   commentText.value = ''
   await refresh()
+}
+
+const { toggle, pending: likePending } = useToggleLike(postId)
+
+const isLiked = ref(post.value?.likes.some(l => l.userId === CURRENT_USER_ID) ?? false)
+const likeCount = ref(post.value?.likes.length ?? 0)
+
+async function handleLike() {
+  if (likePending.value) return
+  const wasLiked = isLiked.value
+  isLiked.value = !wasLiked
+  likeCount.value += isLiked.value ? 1 : -1
+
+  const result = await toggle()
+  if (result === null) {
+    isLiked.value = wasLiked
+    likeCount.value += wasLiked ? 1 : -1
+    return
+  }
+  isLiked.value = result
 }
 </script>
