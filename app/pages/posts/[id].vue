@@ -289,14 +289,24 @@ function askDeleteComment(commentId: number) {
 async function confirmDeleteComment() {
   if (!commentToDelete.value) return
 
-  const success = await remove(commentToDelete.value)
+  deletePending.value = true
 
-  if (success) {
+  try {
+    await $fetch(`/api/posts/${postId}/comments/${commentToDelete.value}`, {
+      method: 'DELETE',
+      body: {
+        userId: CURRENT_USER_ID
+      }
+    })
+
     await refresh()
+  } catch (err) {
+    console.error('Failed to delete comment:', err)
+  } finally {
+    deletePending.value = false
+    showDeleteConfirm.value = false
+    commentToDelete.value = null
   }
-
-  showDeleteConfirm.value = false
-  commentToDelete.value = null
 }
 
 // --- Like ---
