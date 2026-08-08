@@ -1,28 +1,23 @@
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { comments } from '~~/server/database/schema'
 import { z } from 'zod'
 
 const deleteCommentSchema = z.object({
-  commentId: z.coerce.number().int().positive('commentId wajib diisi'),
-  userId: z.coerce.number().int().positive('userId wajib diisi')
+  commentId: z.number().int().positive('commentId is required'),
+  userId: z.number().int().positive('userId is required')
 })
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
+  assertMethod(event, ['DELETE'])
+
   const body = await readBody(event).catch(() => ({}))
-
-  const rawData = {
-    commentId: query.commentId || body?.commentId,
-    userId: query.userId || body?.userId
-  }
-
-  const parsed = deleteCommentSchema.safeParse(rawData)
+  const parsed = deleteCommentSchema.safeParse(body)
 
   if (!parsed.success) {
-    throw createError({ 
-      statusCode: 400, 
-      statusMessage: 'Validasi gagal', 
-      data: parsed.error.flatten().fieldErrors 
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Validation failed',
+      data: parsed.error.flatten().fieldErrors
     })
   }
 
@@ -34,17 +29,24 @@ export default defineEventHandler(async (event) => {
   })
 
   if (!existing) {
-    throw createError({ statusCode: 404, statusMessage: 'Komentar tidak ditemukan' })
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Comment not found'
+    })
   }
 
   if (existing.userId !== userId) {
-    throw createError({ 
-      statusCode: 403, 
-      statusMessage: `Gagal menghapus: Komentar ini milik userId ${existing.userId}, bukan userId ${userId}` 
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'You are not authorized to delete this comment'
     })
   }
 
   await db.delete(comments).where(eq(comments.id, commentId))
 
-  return successResponse({ message: 'Komentar berhasil dihapus', id: commentId })
+  return {
+    success: true,
+    message: 'Comment deleted successfully',
+    id: commentId
+  }
 })

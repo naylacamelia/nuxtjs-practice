@@ -29,11 +29,11 @@ export default defineEventHandler(async (event) => {
   })
 
   if (!existing) {
-    throw createError({ statusCode: 404, statusMessage: 'Komentar tidak ditemukan' })
+    throw createError({ statusCode: 404, statusMessage: 'Comment not found' })
   }
 
   if (existing.userId !== userId) {
-    throw createError({ statusCode: 403, statusMessage: 'Kamu tidak bisa mengedit komentar orang lain' })
+    throw createError({ statusCode: 403, statusMessage: 'You are not authorized to edit this comment' })
   }
 
   const [updated] = await db
