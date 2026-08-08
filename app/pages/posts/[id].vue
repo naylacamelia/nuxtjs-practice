@@ -97,7 +97,7 @@
               <UButton :loading="submittingComment" :disabled="!commentText.trim()"
                 class="rounded-full px-5 font-medium bg-amber-500 hover:bg-amber-600 text-white dark:bg-amber-500 dark:hover:bg-amber-600"
                 @click="handleSubmitComment">
-                Kirim
+                Send
               </UButton>
             </div>
           </div>
@@ -147,7 +147,7 @@
                   </button>
                   <button class="transition-colors hover:text-red-500" :disabled="deletePending"
                     @click="askDeleteComment(comment.id)">
-                    Hapus
+                    Delete
                   </button>
                 </div>
               </template>

@@ -1,15 +1,22 @@
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { comments } from '~~/server/database/schema'
 import { z } from 'zod'
 
 const deleteCommentSchema = z.object({
-  commentId: z.number().int().positive('commentId wajib diisi'),
-  userId: z.number().int().positive('userId wajib diisi')
+  commentId: z.coerce.number().int().positive('commentId wajib diisi'),
+  userId: z.coerce.number().int().positive('userId wajib diisi')
 })
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const parsed = deleteCommentSchema.safeParse(body)
+  const query = getQuery(event)
+  const body = await readBody(event).catch(() => ({}))
+
+  const rawData = {
+    commentId: query.commentId || body?.commentId,
+    userId: query.userId || body?.userId
+  }
+
+  const parsed = deleteCommentSchema.safeParse(rawData)
 
   if (!parsed.success) {
     throw createError({ 
@@ -31,7 +38,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (existing.userId !== userId) {
-    throw createError({ statusCode: 403, statusMessage: 'Kamu tidak bisa menghapus komentar orang lain' })
+    throw createError({ 
+      statusCode: 403, 
+      statusMessage: `Gagal menghapus: Komentar ini milik userId ${existing.userId}, bukan userId ${userId}` 
+    })
   }
 
   await db.delete(comments).where(eq(comments.id, commentId))
