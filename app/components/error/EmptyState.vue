@@ -1,42 +1,35 @@
 <template>
-<div
-class="py-24 text-center"
->
+  <div class="mx-auto flex max-w-md flex-col items-center justify-center rounded-2xl border border-dashed border-[#CBD5E1] bg-white/70 p-8 text-center dark:border-[#334155] dark:bg-[#1E293B]/40">
+    <div class="mb-4 flex size-12 items-center justify-center rounded-2xl bg-[#E2E8F0] text-[#5B8C9C] dark:bg-[#0F172A] dark:text-[#7BAAB9]">
+      <UIcon
+        name="i-lucide-file-text"
+        class="size-6"
+      />
+    </div>
 
-<UIcon
-name="i-lucide-folder-open"
-class="mx-auto size-16 text-gray-300"
-/>
+    <h2 class="font-sans text-lg font-bold text-[#334155] dark:text-[#F1F5F9]">
+      {{ title }}
+    </h2>
 
-<h2
-class="mt-5 text-xl font-semibold"
->
-{{ title }}
-</h2>
+    <p class="mt-1.5 text-xs text-[#64748B] dark:text-[#94A3B8] leading-relaxed max-w-xs">
+      {{ description }}
+    </p>
 
-<p
-class="mt-2 text-gray-500"
->
-{{ description }}
-</p>
-
-</div>
+    <div class="mt-5">
+      <slot />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-
 defineProps({
-
-title:{
-type:String,
-default:"No data"
-},
-
-description:{
-type:String,
-default:"Nothing here yet."
-}
-
+  title: {
+    type: String,
+    default: "No dispatches found"
+  },
+  description: {
+    type: String,
+    default: "Nothing to display at this time."
+  }
 })
-
 </script>

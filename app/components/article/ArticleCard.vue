@@ -1,99 +1,112 @@
 <template>
-  <article class="group">
+  <article ref="cardRef" class="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-gray-50 p-5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-gray-100 hover:-translate-y-2 dark:border-gray-800 dark:bg-gray-900/50 dark:hover:bg-gray-800">
     <NuxtLink
       :to="`/posts/${post.id}`"
-      class="block focus-visible:outline-none"
-      :aria-label="`Baca artikel: ${post.title}`"
+      class="flex h-full flex-col focus-visible:outline-hidden"
+      :aria-label="`Read: ${post.title}`"
     >
-      <UCard
-        class="overflow-hidden bg-transparent transition-transform duration-300 group-hover:-translate-y-1"
-        :ui="{
-          root: 'ring-0 shadow-none divide-y-0',
-          body: 'p-0 sm:p-0'
-        }"
-      >
-        <!-- Article image -->
-        <div
-          class="relative mb-5 aspect-[4/3] overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800"
-        >
-          <NuxtImg
-            :src="imageUrl"
-            :alt="post.title"
-            width="600"
-            height="450"
-            loading="lazy"
-            format="webp"
-            class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-          />
+      <!-- Image Thumbnail -->
+      <div class="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-gray-200 dark:bg-gray-800">
+        <NuxtImg
+          :src="imageUrl"
+          :alt="post.title"
+          width="600"
+          height="375"
+          loading="lazy"
+          format="webp"
+          class="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        />
 
-          <div
-            class="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/5"
-          />
+        <!-- Category Tag Badge -->
+        <div class="absolute left-3 top-3">
+          <span class="inline-flex items-center rounded-full bg-white/90 px-3 py-1 font-sans text-xs font-semibold text-gray-900 shadow-sm backdrop-blur-xs dark:bg-gray-900/90 dark:text-white">
+            {{ post.category?.name ?? 'Article' }}
+          </span>
+        </div>
+      </div>
 
-          <div
-            v-if="$slots.badge"
-            class="absolute left-4 top-4"
-          >
-            <slot name="badge" />
-          </div>
+      <!-- Content Container -->
+      <div class="mt-5 flex flex-1 flex-col">
+        <!-- Metadata -->
+        <div class="mb-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <span class="font-semibold text-gray-900 dark:text-white">
+            {{ post.author?.name ?? 'Staff' }}
+          </span>
+          <span>·</span>
+          <span class="font-sans text-gray-400">4 min read</span>
         </div>
 
-        <!-- Article information -->
-        <div>
-          <div
-            v-if="$slots.meta"
-            class="mb-3 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
-          >
-            <slot name="meta" />
-          </div>
+        <!-- Headline -->
+        <h3 class="font-sans text-lg font-bold leading-snug tracking-tight text-gray-900 transition-colors dark:text-white sm:text-xl">
+          {{ post.title }}
+        </h3>
 
-          <h2
-            class="line-clamp-2 text-xl font-semibold leading-snug tracking-tight text-gray-950 transition-colors group-hover:text-gray-600 dark:text-white dark:group-hover:text-gray-300"
-          >
-            {{ post.title }}
-          </h2>
+        <!-- Excerpt -->
+        <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+          {{ post.body }}
+        </p>
 
-          <p
-            class="mt-3 line-clamp-2 text-sm leading-6 text-gray-500 dark:text-gray-400"
-          >
-            {{ post.body }}
-          </p>
+        <!-- Card Footer -->
+        <div class="mt-auto flex items-center justify-between border-t border-gray-200 pt-5 dark:border-gray-700">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-3.5 py-1.5 font-sans text-xs font-semibold text-white transition-all group-hover:scale-105 dark:bg-white dark:text-gray-900">
+            Read story
+            <UIcon name="i-lucide-arrow-up-right" class="size-3.5" />
+          </span>
 
-          <div
-            class="mt-5 flex items-center justify-between gap-4"
-          >
-            <span
-              class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-900 transition-all duration-300 group-hover:gap-2.5 dark:text-white"
-            >
-              Read article
-
-              <UIcon
-                name="i-lucide-arrow-up-right"
-                class="size-4"
-              />
+          <div class="flex items-center gap-3 text-xs text-gray-400">
+            <span class="flex items-center gap-1">
+              <UIcon name="i-lucide-star" class="size-3.5" />
+              {{ post.likes?.length ?? 0 }}
             </span>
-
-            <slot name="footer" />
+            <span class="flex items-center gap-1">
+              <UIcon name="i-lucide-message-square" class="size-3.5" />
+              {{ post.comments?.length ?? 0 }}
+            </span>
           </div>
         </div>
-      </UCard>
+      </div>
     </NuxtLink>
   </article>
 </template>
 
 <script setup lang="ts">
-interface Post {
-  id: number
-  userId: number
-  title: string
-  body: string
-}
+import type { Post } from '~/composables/usePost'
+import { useGsap } from '~/composables/useGsap'
 
 const props = defineProps<{
   post: Post
 }>()
 
 const imageUrl = computed(() => {
-  return `https://picsum.photos/seed/tech-${props.post.id}/600/450`
+  return props.post.imageUrl ?? `https://picsum.photos/seed/tech-${props.post.id}/600/400`
+})
+
+const cardRef = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+  const { gsap, ScrollTrigger } = useGsap()
+  
+  if (cardRef.value) {
+    gsap.fromTo(cardRef.value, 
+      {
+        opacity: 0,
+        scale: 0.9,
+        y: 30
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: cardRef.value,
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        },
+        clearProps: 'all' // prevents conflict with tailwind hover states
+      }
+    )
+  }
 })
 </script>

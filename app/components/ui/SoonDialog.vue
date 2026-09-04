@@ -1,64 +1,57 @@
 <template>
   <div
     v-if="mode === 'page'"
-    class="flex flex-col items-center justify-center py-20 px-4 text-center"
+    class="flex flex-col items-center justify-center py-24 px-4 text-center"
   >
+    <span class="rounded-full bg-gray-100 px-4 py-1.5 font-sans text-xs font-semibold uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+      Feature In Development
+    </span>
 
-    <UBadge
-      color="neutral"
-      variant="soft"
-      class="mb-3 rounded-full px-3 py-1 text-xs font-medium"
-    >
-      Coming Soon
-    </UBadge>
-
-    <h2 class="mt-8  xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+    <h2 class="mt-6 font-sans text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-50 sm:text-5xl">
       {{ title }}
     </h2>
 
-    <p class="mt-2 max-w-md text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+    <p class="mt-4 max-w-lg text-base text-gray-500 dark:text-gray-400 leading-relaxed">
       {{ description }}
     </p>
 
-    <div v-if="showBack" class="mt-6">
-<UButton
-class="mt-8"
-to="/"
->
-Back Home
-</UButton>
-
+    <div v-if="showBack" class="mt-8">
+      <NuxtLink
+        to="/"
+        class="inline-flex items-center gap-2 rounded-full bg-gray-900 px-6 py-2.5 font-sans text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 hover:scale-105 active:scale-[0.98]"
+      >
+        <UIcon name="i-lucide-arrow-left" class="size-4" />
+        <span>Return Home</span>
+      </NuxtLink>
     </div>
   </div>
 
   <!-- Modal / Dialog Mode -->
-  <UModal v-else v-model:open="isOpen">
+  <UModal v-model:open="isOpen" :ui="{ wrapper: 'rounded-3xl' }">
     <template #content>
-      <div class="p-6 text-center">
+      <div class="p-8 text-center">
         <div
-          class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
+          class="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
         >
-          <UIcon :name="icon" class="size-6 text-gray-700 dark:text-gray-300" />
+          <UIcon :name="icon" class="size-6" />
         </div>
 
-
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+        <h3 class="font-sans text-xl font-bold text-gray-900 dark:text-gray-50">
           {{ title }}
         </h3>
 
-        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+        <p class="mt-3 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
           {{ description }}
         </p>
 
-        <div class="mt-6 flex justify-center">
-          <UButton
-            color="neutral"
-            variant="solid"
-            class="rounded-full px-6 text-xs font-medium"
+        <div class="mt-8 flex justify-center">
+          <button
+            type="button"
+            class="rounded-full bg-gray-900 px-8 py-2.5 font-sans text-sm font-semibold text-white transition hover:bg-gray-800 hover:scale-105 active:scale-[0.98]"
             @click="isOpen = false"
           >
-            Oke
-          </UButton>
+            Understood
+          </button>
         </div>
       </div>
     </template>
@@ -66,7 +59,7 @@ Back Home
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(
+withDefaults(
   defineProps<{
     mode?: 'page' | 'modal'
     title?: string
@@ -76,8 +69,8 @@ const props = withDefaults(
   }>(),
   {
     mode: 'modal',
-    title: 'Fitur Segera Hadir',
-    description: 'Kami sedang menyiapkan fitur ini untuk pengalaman terbaikmu. Nantikan pembaruannya!',
+    title: 'Feature in Development',
+    description: 'We are crafting this capability for the best editorial experience. Stay tuned for updates!',
     icon: 'i-lucide-sparkles',
     showBack: false
   }
