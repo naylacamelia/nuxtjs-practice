@@ -1,62 +1,95 @@
 <template>
-  <NuxtLink :to="`/posts/${post.id}`"
-    class="group flex flex-col md:flex-row gap-5 md:gap-8 py-8 border-b border-gray-100 dark:border-gray-800 items-start transition-colors">
-
-    <div class="flex flex-col flex-1 min-w-0 order-2 md:order-1 w-full">
-
-      <div class="flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-400 mb-3">
-        <UAvatar :src="post.author?.avatarUrl ?? `https://i.pravatar.cc/100?img=${post.author?.id ?? 1}`"
-          :alt="post.author?.name ?? 'User'" size="sm" class="ring-1 ring-gray-200 dark:ring-gray-800" />
-        <div class="flex items-center gap-1.5">
-          <span class="font-medium text-gray-900 dark:text-gray-100">{{ post.author?.name ?? 'User' }}</span>
-          <span class="text-gray-400 text-xs">•</span>
+  <article class="group relative border-b border-gray-100 py-8 transition-colors dark:border-gray-800">
+    <NuxtLink
+      :to="`/posts/${post.id}`"
+      class="flex flex-col-reverse justify-between gap-6 sm:flex-row sm:items-start"
+    >
+      <!-- Left Content -->
+      <div class="flex min-w-0 flex-1 flex-col">
+        <!-- Author Byline & Timestamp -->
+        <div class="mb-3 flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
+          <UAvatar
+            :src="post.author?.avatarUrl ?? `https://i.pravatar.cc/100?img=${post.author?.id ?? 1}`"
+            :alt="post.author?.name ?? 'User'"
+            size="xs"
+            class="ring-2 ring-white dark:ring-gray-800"
+          />
+          <span class="font-semibold text-gray-900 dark:text-white">
+            {{ post.author?.name ?? 'Author' }}
+          </span>
+          <span>·</span>
           <span>5 min read</span>
         </div>
-      </div>
 
-      <h2
-        class="text-xl md:text-2xl font-extrabold text-gray-900 dark:text-white leading-tight mb-2 tracking-tight transition-colors group-hover:text-gray-600 dark:group-hover:text-gray-300">
-        {{ post.title }}
-      </h2>
+        <!-- Headline -->
+        <h2 class="font-sans text-xl font-bold tracking-tight text-gray-900 transition-colors dark:text-white sm:text-2xl">
+          {{ post.title }}
+        </h2>
 
-      <p class="line-clamp-2 text-gray-600 dark:text-gray-400 text-sm md:text-base leading-relaxed mb-5">
-        {{ post.body }}
-      </p>
+        <!-- Body Snippet -->
+        <p class="mt-3 line-clamp-2 text-base leading-relaxed text-gray-500 dark:text-gray-400">
+          {{ post.body }}
+        </p>
 
-      <div class="flex items-center justify-between mt-auto">
-        <span v-if="post.category?.name"
-          class="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-normal text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800">
-          {{ post.category.name }}
-        </span>
-        <div v-else></div>
-        <div class="flex items-center gap-5 text-gray-500 dark:text-gray-400">
-
-          <button
-            class="flex items-center gap-1.5 transition-colors group/like hover:text-amber-500 dark:hover:text-amber-400"
-            @click.stop.prevent="handleLike" aria-label="Like post">
-            <UIcon name="i-lucide-star" class="size-5 transition-transform active:scale-110" :class="isLiked
-              ? 'fill-amber-400 text-amber-400 dark:fill-amber-400 dark:text-amber-400'
-              : 'text-gray-500'" />
-            <span class="text-sm font-medium" :class="isLiked && 'text-amber-500 dark:text-amber-400'">
-              {{ likeCount }}
+        <!-- Meta Footer: Tags + Interactive Counters -->
+        <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              v-if="post.category?.name"
+              class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 font-sans text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+            >
+              {{ post.category.name }}
             </span>
-          </button>
-
-          <div class="flex items-center gap-1.5 transition-colors hover:text-gray-900 dark:hover:text-gray-200">
-            <UIcon name="i-lucide-message-circle" class="size-5" />
-            <span class="text-sm font-medium">{{ post.comments?.length ?? 0 }}</span>
+            <span
+              v-for="tagObj in (post.postTags || []).slice(0, 2)"
+              :key="tagObj.tag.id"
+              class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 font-sans text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
+            >
+              #{{ tagObj.tag.name }}
+            </span>
           </div>
 
+          <!-- Actions & Stats -->
+          <div class="flex items-center gap-4 text-xs text-gray-400">
+            <!-- Like Action -->
+            <button
+              type="button"
+              class="flex items-center gap-1.5 transition-all hover:text-gray-900 hover:scale-105 dark:hover:text-white"
+              :class="isLiked && 'text-gray-900 dark:text-white font-semibold'"
+              aria-label="Like post"
+              @click.stop.prevent="handleLike"
+            >
+              <UIcon
+                :name="isLiked ? 'i-lucide-star' : 'i-lucide-star'"
+                class="size-4 transition-transform active:scale-125"
+                :class="isLiked ? 'fill-gray-900 text-gray-900 dark:fill-white dark:text-white' : 'text-gray-400'"
+              />
+              <span>{{ likeCount }}</span>
+            </button>
+
+            <!-- Comments Count -->
+            <div class="flex items-center gap-1.5">
+              <UIcon name="i-lucide-message-square" class="size-4" />
+              <span>{{ post.comments?.length ?? 0 }}</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="order-1 md:order-2 w-full md:w-[200px] lg:w-[240px] shrink-0 mb-4 md:mb-0">
-      <NuxtImg :src="post.imageUrl ?? `https://picsum.photos/seed/${post.id}/320/220`" :alt="post.title"
-        class="w-full aspect-[16/9] md:aspect-[4/3] object-cover rounded-md border border-gray-100 dark:border-gray-800 shadow-sm transition-transform duration-500 group-hover:scale-[1.02]" />
-    </div>
-
-  </NuxtLink>
+      <!-- Right Thumbnail Image -->
+      <div class="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800 sm:w-44 sm:aspect-[4/3] lg:w-52">
+        <NuxtImg
+          :src="post.imageUrl ?? `https://picsum.photos/seed/${post.id}/500/350`"
+          :alt="post.title"
+          width="400"
+          height="280"
+          loading="lazy"
+          format="webp"
+          class="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        />
+      </div>
+    </NuxtLink>
+  </article>
 </template>
 
 <script setup lang="ts">
@@ -65,7 +98,6 @@ import type { Post } from '~/composables/usePost'
 const props = defineProps<{ post: Post }>()
 
 const { toggle, pending } = useToggleLike(props.post.id)
-
 const CURRENT_USER_ID = 2
 
 const isLiked = ref(props.post.likes?.some(l => l.userId === CURRENT_USER_ID) ?? false)
@@ -86,7 +118,6 @@ async function handleLike() {
   likeCount.value += isLiked.value ? 1 : -1
 
   const result = await toggle()
-
   if (result === null) {
     isLiked.value = wasLiked
     likeCount.value += wasLiked ? 1 : -1
